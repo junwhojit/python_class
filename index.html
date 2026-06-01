@@ -1,688 +1,771 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>준후쌤과 하는 파이썬 - 행과 열 마스터!</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap');
-        
-        body {
-            font-family: 'Gaegu', 'Nanum Gothic', sans-serif;
-            background-color: #f0fdf4;
-        }
-        .code-font {
-            font-family: 'Nanum Gothic Coding', monospace;
-        }
-        .bounce-custom {
-            animation: bounce-custom 1s infinite;
-        }
-        @keyframes bounce-custom {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>준후쌤과 이해하는 객체지향과 클래스</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Fira+Code:wght@400;500&display=swap');
+    
+    body {
+      font-family: 'Gowun Dodum', sans-serif;
+    }
+    .code-font {
+      font-family: 'Fira Code', monospace;
+    }
+    /* 귀여운 애니메이션 및 하이라이트 효과 */
+    .clickable-token {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border-radius: 0.375rem;
+      padding: 0.1rem 0.3rem;
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      background-color: rgba(245, 158, 11, 0.05);
+    }
+    .clickable-token:hover {
+      background-color: #fef3c7;
+      border-color: #f59e0b;
+      transform: scale(1.05);
+    }
+    .clickable-line {
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border-radius: 0.375rem;
+    }
+    .clickable-line:hover {
+      background-color: rgba(241, 245, 249, 0.9);
+    }
+    .selected-line {
+      background-color: #eff6ff !important;
+      border-left: 5px solid #3b82f6 !important;
+    }
+    .selected-token {
+      background-color: #fbbf24 !important;
+      color: #78350f !important;
+      font-weight: bold;
+      border-color: #d97706 !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    /* 말랑말랑 통통 튀는 테두리 */
+    .bubble-card {
+      border-radius: 1.5rem;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col text-slate-800">
+<body class="bg-[#fcf8f2] text-slate-700 min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="bg-emerald-500 text-white py-4 px-6 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold flex items-center gap-2 tracking-wider">
-                <i data-lucide="layout-grid" class="w-8 h-8"></i>
-                준후쌤과 하는 파이썬: 행과 열 마스터! 🐍
-            </h1>
-            <div class="flex gap-4 text-lg">
-                <span id="score-display" class="bg-emerald-600 px-4 py-1.5 rounded-full font-bold flex items-center gap-2">
-                    <i data-lucide="star" class="w-5 h-5 fill-yellow-300 stroke-yellow-300"></i>
-                    점수: <span id="score-value">0</span>점
-                </span>
-            </div>
+  <!-- 귀여운 숲속 교실 느낌의 네비게이션 바 -->
+  <header class="bg-white border-b-4 border-[#e9decb] sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-[#ff7a7a] text-white p-2.5 rounded-2xl shadow-md rotate-[-3deg] hover:rotate-[3deg] transition-transform">
+          <i class="fa-solid fa-cookie-bite text-2xl"></i>
         </div>
-    </header>
+        <div>
+          <h1 class="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+            준후쌤과 이해하는 객체지향과 클래스
+            <span class="text-xs bg-[#ffebeb] text-[#ff5a5a] px-2 py-0.5 rounded-full font-bold">인터랙티브 노트 ✏️</span>
+          </h1>
+          <p class="text-xs text-slate-500">교과서 124쪽: 준후쌤과 함께 쉽고 귀엽게 탐구해봐요!</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-700 rounded-full border border-amber-200 animate-bounce">
+          💡 노란색 점선 단어를 콕! 클릭해봐!
+        </span>
+      </div>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
-        
-        <!-- Mode Selector -->
-        <div class="flex justify-center gap-4">
-            <button id="btn-mode-learn" class="px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-emerald-100 text-emerald-800 border-2 border-emerald-300 active-mode" onclick="switchMode('learn')">
-                <i data-lucide="book-open" class="w-5 h-5"></i> 기초 개념 배우기
-            </button>
-            <button id="btn-mode-quiz1" class="px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200" onclick="switchMode('quiz1')">
-                <i data-lucide="pointer" class="w-5 h-5"></i> 칸 선택하기!
-            </button>
-            <button id="btn-mode-quiz2" class="px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200" onclick="switchMode('quiz2')">
-                <i data-lucide="keyboard" class="w-5 h-5"></i> 주소 채우기!
-            </button>
+  <!-- 메인 레이아웃 -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- 왼쪽: 단계별 학습 가이드 & 코드 영역 (7칸) -->
+    <div class="lg:col-span-7 flex flex-col gap-6">
+      
+      <!-- 상단 귀여운 붕어빵 요약 카드 -->
+      <section class="bg-gradient-to-br from-[#ffd885] to-[#f7b733] text-slate-800 bubble-card p-6 shadow-md relative overflow-hidden border-b-4 border-amber-600/30">
+        <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl pointer-events-none">
+          <i class="fa-solid fa-cookie text-slate-900"></i>
+        </div>
+        <span class="bg-amber-900/10 text-amber-900 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">개념 한눈에 쏙!</span>
+        <h2 class="text-2xl font-bold mt-2 mb-2 flex items-center gap-2">
+          붕어빵 틀 🐟과 실제 붕어빵 🍞
+        </h2>
+        <p class="text-sm text-slate-800/90 leading-relaxed font-medium">
+          <strong>객체지향(OOP)</strong>이 뭘까요? 아주 간단해요!<br>
+          우리가 만들고 싶은 학생 데이터의 모양을 나타내는 <strong>설계도(클래스)</strong>를 하나 만들어 두면, 이 설계도를 기반으로 실제로 살아 움직이는 <strong>학생 객체(인스턴스)</strong>를 찍어낼 수 있는 마법같은 프로그래밍 기법이에요!
+        </p>
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-amber-600/20">
+          <div class="bg-white/40 p-3 rounded-xl border border-white/40">
+            <span class="text-xs text-amber-900 block font-bold"><i class="fa-solid fa-drafting-compass mr-1"></i> 클래스(Class)</span>
+            <span class="font-bold text-sm">붕어빵을 찍는 '쇠틀' 🐟</span>
+          </div>
+          <div class="bg-white/40 p-3 rounded-xl border border-white/40">
+            <span class="text-xs text-amber-900 block font-bold"><i class="fa-solid fa-hotdog mr-1"></i> 인스턴스(Instance)</span>
+            <span class="font-bold text-sm">갓 구워져 나온 '슈크림 붕어빵' 🍞</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 코드 인터랙티브 뷰 (네 영역으로 분리) -->
+      <div class="flex flex-col gap-6">
+
+        <!-- 1. 클래스 생성 카드 -->
+        <section class="bg-white border-4 border-[#e9decb] bubble-card overflow-hidden flex flex-col shadow-sm">
+          <div class="bg-[#faf7f2] px-5 py-3 border-b-2 border-[#e9decb] flex justify-between items-center">
+            <span class="text-sm font-bold text-blue-800"><i class="fa-solid fa-gears mr-1"></i> 1단계. 설계도(클래스) 만들기</span>
+            <span class="text-xs text-slate-400 code-font">class_def.py</span>
+          </div>
+          <div class="p-4 sm:p-5 overflow-x-auto bg-[#2b303c] text-[#e5e9f0] code-font text-sm leading-7">
+            <div id="sec-class_def" class="border-l-4 border-transparent pl-2 py-1 transition-all rounded-lg">
+              <!-- Line 1 -->
+              <div class="clickable-line flex" onclick="selectLine(1, 'class_def_1')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">1</span>
+                <span><span class="text-[#81a1c1] font-bold clickable-token" onclick="selectToken(event, 'class_keyword')">class</span> <span class="text-[#f59e0b] font-bold clickable-token" onclick="selectToken(event, 'class_name')">Students</span>:</span>
+              </div>
+              <!-- Line 2 -->
+              <div class="clickable-line flex" onclick="selectLine(2, 'init_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">2</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold clickable-token" onclick="selectToken(event, 'def_keyword')">def</span> <span class="text-[#88c0d0] font-bold clickable-token" onclick="selectToken(event, 'init_keyword')">__init__</span>(<span class="text-[#f39c12] font-semibold clickable-token" onclick="selectToken(event, 'self_keyword')">self</span>, name, informatics, math):</span>
+              </div>
+              <!-- Line 3 -->
+              <div class="clickable-line flex" onclick="selectLine(3, 'attribute_assign')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">3</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'self_attrib_name')">self.name</span> = name</span>
+              </div>
+              <!-- Line 4 -->
+              <div class="clickable-line flex" onclick="selectLine(4, 'attribute_assign')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">4</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'self_attrib_info')">self.informatics</span> = informatics</span>
+              </div>
+              <!-- Line 5 -->
+              <div class="clickable-line flex" onclick="selectLine(5, 'attribute_assign')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">5</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.math = math</span>
+              </div>
+              <!-- Line 6 -->
+              <div class="clickable-line flex" onclick="selectLine(6, 'sum_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">6</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">def</span> <span class="text-[#88c0d0] font-bold">sum</span>(self):</span>
+              </div>
+              <!-- Line 7 -->
+              <div class="clickable-line flex" onclick="selectLine(7, 'sum_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">7</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">return</span> self.informatics + self.math</span>
+              </div>
+              <!-- Line 8 -->
+              <div class="clickable-line flex" onclick="selectLine(8, 'avg_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">8</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">def</span> <span class="text-[#88c0d0] font-bold">avg</span>(self):</span>
+              </div>
+              <!-- Line 9 -->
+              <div class="clickable-line flex" onclick="selectLine(9, 'avg_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">9</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">return</span> <span class="text-[#88c0d0] font-bold clickable-token" onclick="selectToken(event, 'call_sum')">self.sum()</span> / 2</span>
+              </div>
+              <!-- Line 10 -->
+              <div class="clickable-line flex" onclick="selectLine(10, 'string_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">10</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">def</span> <span class="text-[#88c0d0] font-bold">string</span>(self):</span>
+              </div>
+              <!-- Line 11 -->
+              <div class="clickable-line flex" onclick="selectLine(11, 'format_method')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">11</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">return</span> <span class="text-[#a3be8c] clickable-token" onclick="selectToken(event, 'string_format')">'{}\t{}'</span>.<span class="text-[#f59e0b] font-bold clickable-token" onclick="selectToken(event, 'format_func')">format</span>(self.name, self.avg())</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. 학생 리스트 생성 카드 -->
+        <section class="bg-white border-4 border-[#e9decb] bubble-card overflow-hidden flex flex-col shadow-sm">
+          <div class="bg-[#faf7f2] px-5 py-3 border-b-2 border-[#e9decb] flex justify-between items-center">
+            <span class="text-sm font-bold text-green-800"><i class="fa-solid fa-users mr-1"></i> 2단계. 학생 리스트(실제 객체들) 만들기</span>
+            <span class="text-xs text-slate-400 code-font">create_list.py</span>
+          </div>
+          <div class="p-4 sm:p-5 overflow-x-auto bg-[#2b303c] text-[#e5e9f0] code-font text-sm leading-7">
+            <div id="sec-list_create" class="border-l-4 border-transparent pl-2 py-1 transition-all rounded-lg">
+              <!-- Line 12 -->
+              <div class="clickable-line flex" onclick="selectLine(12, 'list_desc')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">12</span>
+                <span><span class="text-[#718096] italic"># 학생 리스트(객체) 생성</span></span>
+              </div>
+              <!-- Line 13 -->
+              <div class="clickable-line flex" onclick="selectLine(13, 'list_brackets')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">13</span>
+                <span><span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'list_var')">students</span> = <span class="text-[#d8dee9] font-bold">[</span></span>
+              </div>
+              <!-- Line 14 -->
+              <div class="clickable-line flex" onclick="selectLine(14, 'object_instantiation_1')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">14</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#f59e0b] font-bold clickable-token" onclick="selectToken(event, 'class_name')">Students</span>(<span class="text-[#a3be8c]">'김OO'</span>, 88, 90),</span>
+              </div>
+              <!-- Line 15 -->
+              <div class="clickable-line flex" onclick="selectLine(15, 'object_instantiation_2')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">15</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;Students(<span class="text-[#a3be8c]">'정OO'</span>, 73, 65),</span>
+              </div>
+              <!-- Line 16 -->
+              <div class="clickable-line flex" onclick="selectLine(16, 'object_instantiation_3')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">16</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;Students(<span class="text-[#a3be8c]">'한OO'</span>, 63, 77)</span>
+              </div>
+              <!-- Line 17 -->
+              <div class="clickable-line flex" onclick="selectLine(17, 'list_brackets')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">17</span>
+                <span><span class="text-[#d8dee9] font-bold">]</span></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. 특정 객체값 출력 카드 -->
+        <section class="bg-white border-4 border-[#e9decb] bubble-card overflow-hidden flex flex-col shadow-sm">
+          <div class="bg-[#faf7f2] px-5 py-3 border-b-2 border-[#e9decb] flex justify-between items-center">
+            <span class="text-sm font-bold text-orange-800"><i class="fa-solid fa-bullseye mr-1"></i> 3단계. 특정 학생의 데이터만 콕 집어 출력하기</span>
+            <span class="text-xs text-slate-400 code-font">print_one.py</span>
+          </div>
+          <div class="p-4 sm:p-5 overflow-x-auto bg-[#2b303c] text-[#e5e9f0] code-font text-sm leading-7">
+            <div id="sec-print_one" class="border-l-4 border-transparent pl-2 py-1 transition-all rounded-lg">
+              <!-- Line 18 -->
+              <div class="clickable-line flex" onclick="selectLine(18, 'print_desc')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">18</span>
+                <span><span class="text-[#718096] italic"># 특정 객체의 정보만 출력</span></span>
+              </div>
+              <!-- Line 19 -->
+              <div class="clickable-line flex" onclick="selectLine(19, 'print_one_title')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">19</span>
+                <span><span class="text-[#81a1c1] font-semibold">print</span>(<span class="text-[#a3be8c]">'김OO의 정보 성적'</span>)</span>
+              </div>
+              <!-- Line 20 -->
+              <div class="clickable-line flex" onclick="selectLine(20, 'access_property')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">20</span>
+                <span><span class="text-[#81a1c1] font-semibold">print</span>(<span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'list_access')">students[0]</span>.<span class="text-[#f59e0b] font-bold clickable-token" onclick="selectToken(event, 'prop_access')">informatics</span>)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. 전체 반복 출력 카드 -->
+        <section class="bg-white border-4 border-[#e9decb] bubble-card overflow-hidden flex flex-col shadow-sm">
+          <div class="bg-[#faf7f2] px-5 py-3 border-b-2 border-[#e9decb] flex justify-between items-center">
+            <span class="text-sm font-bold text-purple-800"><i class="fa-solid fa-list-ol mr-1"></i> 4단계. 전체 학생 성적 정렬하여 출력하기</span>
+            <span class="text-xs text-slate-400 code-font">print_all.py</span>
+          </div>
+          <div class="p-4 sm:p-5 overflow-x-auto bg-[#2b303c] text-[#e5e9f0] code-font text-sm leading-7">
+            <div id="sec-print_all" class="border-l-4 border-transparent pl-2 py-1 transition-all rounded-lg">
+              <!-- Line 21 (이전 22라인) -->
+              <div class="clickable-line flex" onclick="selectLine(21, 'print_sep')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">21</span>
+                <span><span class="text-[#81a1c1] font-semibold">print</span>(<span class="text-[#a3be8c]">'이름'</span>, <span class="text-[#a3be8c]">'평균'</span>, <span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'sep_param')">sep='\t'</span>)</span>
+              </div>
+              <!-- Line 22 (이전 23라인) -->
+              <div class="clickable-line flex" onclick="selectLine(22, 'for_loop')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">22</span>
+                <span><span class="text-[#81a1c1] font-semibold">for</span> <span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'loop_var')">i</span> <span class="text-[#81a1c1] font-semibold">in</span> students:</span>
+              </div>
+              <!-- Line 23 (이전 24라인) -->
+              <div class="clickable-line flex" onclick="selectLine(23, 'string_call')">
+                <span class="text-slate-500 w-6 select-none inline-block text-right pr-2 text-xs">23</span>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#81a1c1] font-semibold">print</span>(<span class="text-[#d8dee9] clickable-token" onclick="selectToken(event, 'loop_var_call')">i</span>.<span class="text-[#88c0d0] font-bold clickable-token" onclick="selectToken(event, 'string_method_call')">string()</span>)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 모니터 모양 터미널 출력화면 -->
+      <section class="bg-white border-4 border-[#e9decb] bubble-card p-5 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+          <span class="p-1.5 bg-green-100 text-green-700 rounded-xl text-xs"><i class="fa-solid fa-terminal"></i></span>
+          우리 컴퓨터의 대답! (실행 결과 화면)
+        </h3>
+        <div class="bg-[#1e1e24] text-[#a6e22e] p-4 rounded-2xl code-font text-xs whitespace-pre leading-relaxed shadow-inner border-2 border-slate-700 relative">
+          <div class="absolute right-3 top-3 text-slate-600 text-[10px] select-none">📟 OUTPUT</div>김OO의 정보 성적
+88
+이름	평균
+김OO	89.0
+정OO	69.0
+한OO	70.0</div>
+      </section>
+    </div>
+
+    <!-- 오른쪽: 귀여운 요정 다이어리/날개 설명판 (5칸) -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- 상세 가이드 북 -->
+      <div class="bg-[#fffdf9] border-4 border-[#ffd885] bubble-card p-6 shadow-md sticky top-24 transition-all duration-300" id="explain-box">
+        <div class="flex justify-between items-center mb-4">
+          <span class="bg-[#fff2cc] text-[#d97706] text-xs font-bold px-3 py-1 rounded-full border border-amber-300 flex items-center gap-1.5" id="explain-category">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 준후쌤의 다이어리
+          </span>
+          <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded" id="explain-target-type">도움말</span>
         </div>
 
-        <!-- 1. LEARN MODE -->
-        <section id="panel-learn" class="bg-white p-6 rounded-3xl shadow-lg border border-emerald-100 flex flex-col gap-6">
-            <h2 class="text-2xl font-bold text-emerald-700 flex items-center gap-2 border-b-2 border-emerald-100 pb-2">
-                <i data-lucide="graduation-cap" class="w-7 h-7"></i> 
-                파이썬 리스트의 행(Row)과 열(Column)이란?
-            </h2>
-            
-            <p class="text-xl leading-relaxed text-slate-600">
-                파이썬에서 리스트 안에 또 리스트를 넣으면 바둑판 모양의 <strong class="text-emerald-600">2차원 리스트</strong>를 만들 수 있어요! <br>
-                이때 가장 헷갈리는 것이 바로 <strong class="text-indigo-600">행(Row)</strong>과 <strong class="text-amber-600">열(Column)</strong>의 순서랍니다. 준후쌤과 함께 쉽게 배워봐요!
-            </p>
-
-            <!-- Concept Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Row Info -->
-                <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-5 relative overflow-hidden">
-                    <div class="absolute right-2 top-2 text-indigo-200">
-                        <i data-lucide="arrow-right" class="w-16 h-16"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-indigo-700 mb-2 flex items-center gap-2">
-                        <span class="bg-indigo-600 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">1</span>
-                        행 (Row, 가로줄)
-                    </h3>
-                    <p class="text-lg text-indigo-900 leading-relaxed">
-                        아파트의 <strong class="text-xl">"층"</strong>과 같아요!<br>
-                        파이썬 리스트 식에서 <strong class="text-indigo-700 code-font text-xl">첫 번째 대괄호 s[행]</strong>에 들어갑니다.
-                        <br><span class="text-sm text-indigo-600">(맨 윗줄이 0층, 그 아래가 1층...)</span>
-                    </p>
-                </div>
-
-                <!-- Column Info -->
-                <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 relative overflow-hidden">
-                    <div class="absolute right-2 top-2 text-amber-200">
-                        <i data-lucide="arrow-down" class="w-16 h-16"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-amber-700 mb-2 flex items-center gap-2">
-                        <span class="bg-amber-500 text-white w-7 h-7 rounded-full inline-flex items-center justify-center text-sm">2</span>
-                        열 (Column, 세로줄)
-                    </h3>
-                    <p class="text-lg text-amber-900 leading-relaxed">
-                        아파트의 <strong class="text-xl">"호수" (몇 번째 방)</strong>와 같아요!<br>
-                        파이썬 리스트 식에서 <strong class="text-amber-600 code-font text-xl">두 번째 대괄호 s[행][열]</strong>에 들어갑니다.
-                        <br><span class="text-sm text-amber-600">(맨 왼쪽 칸이 0번 방, 그 옆이 1번 방...)</span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- Interative Visualizer Intro -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mt-2">
-                <h4 class="text-xl font-bold text-slate-700 mb-3 text-center">👇 아래 바둑판의 칸에 마우스를 올려보세요! 어떻게 주소가 바뀌는지 확인해봐요!</h4>
-                
-                <!-- Demo Coordinate Info -->
-                <div class="flex justify-center gap-6 mb-4 text-2xl font-bold">
-                    <div class="px-4 py-2 bg-indigo-100 border border-indigo-200 rounded-xl text-indigo-800">
-                        행 (가로줄 번호): <span id="demo-row-idx" class="text-3xl">0</span>
-                    </div>
-                    <div class="px-4 py-2 bg-amber-100 border border-amber-200 rounded-xl text-amber-800">
-                        열 (세로줄 번호): <span id="demo-col-idx" class="text-3xl">0</span>
-                    </div>
-                </div>
-
-                <div class="text-center mb-6">
-                    <span class="text-xl text-slate-500 mr-2">파이썬 코드로는?</span>
-                    <span class="code-font text-3xl font-bold bg-slate-800 text-emerald-400 px-6 py-2 rounded-xl inline-block shadow-inner">
-                        s<span id="demo-code-row" class="text-indigo-400">[0]</span><span id="demo-code-col" class="text-amber-400">[0]</span>
-                    </span>
-                </div>
-
-                <!-- Interactive Grid -->
-                <div class="flex justify-center overflow-x-auto py-2">
-                    <div class="grid grid-cols-6 gap-2 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm" style="min-width: 480px;">
-                        
-                        <!-- Top Header (Col Indices) -->
-                        <div></div> <!-- empty top-left cell -->
-                        <div class="text-center font-bold text-amber-600 text-lg">열 [0]</div>
-                        <div class="text-center font-bold text-amber-600 text-lg">열 [1]</div>
-                        <div class="text-center font-bold text-amber-600 text-lg">열 [2]</div>
-                        <div class="text-center font-bold text-amber-600 text-lg">열 [3]</div>
-                        <div class="text-center font-bold text-amber-600 text-lg">열 [4]</div>
-
-                        <!-- Row 0 -->
-                        <div class="flex items-center justify-end font-bold text-indigo-600 text-lg pr-2">행 [0]</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="0" data-col="0">🍎</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="0" data-col="1">🍌</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="0" data-col="2">🍇</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="0" data-col="3">🍒</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="0" data-col="4">🍑</div>
-
-                        <!-- Row 1 -->
-                        <div class="flex items-center justify-end font-bold text-indigo-600 text-lg pr-2">행 [1]</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="1" data-col="0">🦁</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="1" data-col="1">🐯</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="1" data-col="2">🐰</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="1" data-col="3">🦊</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="1" data-col="4">🐻</div>
-
-                        <!-- Row 2 -->
-                        <div class="flex items-center justify-end font-bold text-indigo-600 text-lg pr-2">행 [2]</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="2" data-col="0">🚗</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="2" data-col="1">🚌</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="2" data-col="2">🚒</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="2" data-col="3">🚓</div>
-                        <div class="demo-cell h-14 bg-slate-100 hover:bg-emerald-200 border border-slate-300 rounded-xl flex items-center justify-center font-bold text-xl cursor-pointer transition-colors" data-row="2" data-col="4">🚲</div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ready for game card -->
-            <div class="bg-emerald-500 text-white rounded-2xl p-5 text-center mt-2 flex flex-col items-center gap-3">
-                <h3 class="text-2xl font-bold">🎓 개념을 완전히 익혔나요?</h3>
-                <p class="text-lg">이제 준후쌤이 준비한 퀴즈 게임을 풀면서 실력을 테스트해봐요!</p>
-                <button class="bg-white text-emerald-700 font-bold px-6 py-3 rounded-full shadow hover:bg-yellow-100 transition-colors text-xl" onclick="switchMode('quiz1')">
-                    게임 시작하러 가기 🚀
-                </button>
-            </div>
-        </section>
-
-        <!-- 2. QUIZ MODE 1: CHOOSE GRID (칸 선택하기) -->
-        <section id="panel-quiz1" class="hidden bg-white p-6 rounded-3xl shadow-lg border border-indigo-100 flex flex-col gap-6">
-            <div class="flex justify-between items-center border-b-2 border-indigo-100 pb-2">
-                <h2 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
-                    <i data-lucide="help-circle" class="w-7 h-7"></i> 
-                    미션: 올바른 칸을 찾아서 클릭하세요!
-                </h2>
-                <span class="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-lg">
-                    문제 <span id="q1-num">1</span>/10
-                </span>
-            </div>
-
-            <!-- Question Box -->
-            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-center shadow-inner">
-                <p class="text-xl text-slate-600 mb-2">아래의 파이썬 리스트 식에 알맞은 요소를 클릭해 주세요!</p>
-                <div class="flex justify-center items-center gap-4">
-                    <span class="code-font text-4xl font-extrabold bg-slate-800 text-emerald-400 px-8 py-3 rounded-2xl shadow-md tracking-wider">
-                        s<span id="q1-target-row" class="text-indigo-400">[0]</span><span id="q1-target-col" class="text-amber-400">[0]</span>
-                    </span>
-                    <span class="text-3xl font-bold">을(를) 찾으세요!</span>
-                </div>
-                <!-- Mini Explainer Tip -->
-                <p class="text-md text-indigo-600 mt-3 font-semibold">
-                    💡 힌트: 앞의 대괄호 <span class="bg-indigo-100 px-1.5 rounded text-indigo-800 font-bold">[행]</span>은 0부터 세어 내려가는 가로줄, 뒤의 <span class="bg-amber-100 px-1.5 rounded text-amber-800 font-bold">[열]</span>은 왼쪽부터 세는 세로줄이에요!
-                </p>
-            </div>
-
-            <!-- Interactive Grid for Quiz 1 (Headers removed for higher difficulty) -->
-            <div class="flex justify-center overflow-x-auto py-2">
-                <div class="grid grid-cols-5 gap-3 bg-slate-50 p-6 rounded-2xl border-2 border-indigo-100 shadow-inner max-w-md w-full" style="min-width: 320px;">
-                    
-                    <!-- Row 0 -->
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="0" data-col="0">🍎</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="0" data-col="1">🍌</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="0" data-col="2">🍇</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="0" data-col="3">🍒</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="0" data-col="4">🍑</button>
-
-                    <!-- Row 1 -->
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="1" data-col="0">🦁</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="1" data-col="1">🐯</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="1" data-col="2">🐰</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="1" data-col="3">🦊</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="1" data-col="4">🐻</button>
-
-                    <!-- Row 2 -->
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="2" data-col="0">🚗</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="2" data-col="1">🚌</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="2" data-col="2">🚒</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="2" data-col="3">🚓</button>
-                    <button class="q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105" data-row="2" data-col="4">🚲</button>
-                </div>
-            </div>
-
-            <!-- Feedback Alert Zone -->
-            <div id="q1-feedback" class="hidden text-center text-2xl font-bold py-3 rounded-2xl transition-all">
-                여기에 피드백 표시
-            </div>
-        </section>
-
-        <!-- 3. QUIZ MODE 2: FILL INDICES (주소 채우기) -->
-        <section id="panel-quiz2" class="hidden bg-white p-6 rounded-3xl shadow-lg border border-amber-100 flex flex-col gap-6">
-            <div class="flex justify-between items-center border-b-2 border-amber-100 pb-2">
-                <h2 class="text-2xl font-bold text-amber-700 flex items-center gap-2">
-                    <i data-lucide="help-circle" class="w-7 h-7"></i> 
-                    미션: 반짝이는 요소의 주소(인덱스)를 맞춰라!
-                </h2>
-                <span class="text-amber-600 font-bold bg-amber-50 px-3 py-1 rounded-full text-lg">
-                    문제 <span id="q2-num">1</span>/10
-                </span>
-            </div>
-
-            <!-- Question Box with Blank -->
-            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center shadow-inner">
-                <p class="text-xl text-slate-600 mb-3">그리드에서 반짝이는 <strong id="q2-target-item" class="text-2xl text-amber-600 animate-pulse bg-white px-3 py-1.5 rounded-lg border border-amber-200">?</strong> 의 올바른 인덱스는 무엇일까요?</p>
-                
-                <!-- Display Formula with Blanks -->
-                <div class="flex flex-wrap justify-center items-center gap-3 text-3xl font-bold">
-                    <span class="code-font text-slate-700">s</span>
-                    <!-- Row Blank -->
-                    <div class="relative">
-                        <span class="text-sm absolute -top-5 left-1/2 -translate-x-1/2 text-indigo-600 font-semibold">행</span>
-                        <select id="q2-input-row" class="bg-indigo-100 border-2 border-indigo-400 text-indigo-800 rounded-xl px-4 py-2 text-2xl font-bold cursor-pointer hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">행 선택</option>
-                            <option value="0">[0]</option>
-                            <option value="1">[1]</option>
-                            <option value="2">[2]</option>
-                        </select>
-                    </div>
-                    <!-- Col Blank -->
-                    <div class="relative">
-                        <span class="text-sm absolute -top-5 left-1/2 -translate-x-1/2 text-amber-600 font-semibold">열</span>
-                        <select id="q2-input-col" class="bg-amber-100 border-2 border-amber-400 text-amber-800 rounded-xl px-4 py-2 text-2xl font-bold cursor-pointer hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            <option value="">열 선택</option>
-                            <option value="0">[0]</option>
-                            <option value="1">[1]</option>
-                            <option value="2">[2]</option>
-                            <option value="3">[3]</option>
-                            <option value="4">[4]</option>
-                        </select>
-                    </div>
-
-                    <button onclick="checkQuiz2Answer()" class="ml-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all text-xl">
-                        정답 확인! ✔️
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quiz 2 Grid View (Read-only, Headers removed for higher difficulty) -->
-            <div class="flex justify-center overflow-x-auto py-2">
-                <div class="grid grid-cols-5 gap-3 bg-slate-50 p-6 rounded-2xl border-2 border-amber-100 shadow-inner max-w-md w-full" style="min-width: 320px;">
-                    <!-- Row 0 -->
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="0" data-col="0">🍎</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="0" data-col="1">🍌</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="0" data-col="2">🍇</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="0" data-col="3">🍒</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="0" data-col="4">🍑</div>
-
-                    <!-- Row 1 -->
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="1" data-col="0">🦁</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="1" data-col="1">🐯</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="1" data-col="2">🐰</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="1" data-col="3">🦊</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="1" data-col="4">🐻</div>
-
-                    <!-- Row 2 -->
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="2" data-col="0">🚗</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="2" data-col="1">🚌</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="2" data-col="2">🚒</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="2" data-col="3">🚓</div>
-                    <div class="q2-cell h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-3xl" data-row="2" data-col="4">🚲</div>
-                </div>
-            </div>
-
-            <!-- Feedback Zone -->
-            <div id="q2-feedback" class="hidden text-center text-2xl font-bold py-3 rounded-2xl transition-all">
-                여기에 피드백 표시
-            </div>
-        </section>
-
-        <!-- SCORE REPORT / GAME OVER MODAL -->
-        <section id="panel-gameover" class="hidden bg-white p-8 rounded-3xl shadow-xl border border-yellow-200 flex flex-col items-center gap-6 text-center">
-            <div class="text-6xl animate-bounce">🎉🏆🎊</div>
-            <h2 class="text-3xl font-bold text-slate-800">축하합니다! 미션 완료!</h2>
-            <p class="text-2xl text-slate-600 leading-relaxed">
-                행(Row)과 열(Column) 퀴즈의 최종 점수입니다! <br>
-                <strong class="text-emerald-500 font-extrabold text-4xl block my-3"><span id="final-score">0</span>점 / 100점</strong>
-                인덱스를 찾는 재미에 확실히 익숙해졌을 거예요!
-            </p>
-
-            <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 max-w-md w-full">
-                <h3 class="font-bold text-xl text-yellow-800 mb-2">꼭 기억해요! 💡</h3>
-                <ul class="text-left text-lg text-yellow-900 space-y-2 list-disc pl-5">
-                    <li>인덱스는 1이 아니라 <strong class="text-red-500">0</strong>부터 시작해요.</li>
-                    <li><strong class="text-indigo-600">행(Row)</strong>은 위아래 가로줄! <code class="code-font bg-white px-1 py-0.5 rounded border border-slate-200">s[첫번째]</code></li>
-                    <li><strong class="text-amber-600">열(Column)</strong>은 양옆 세로줄! <code class="code-font bg-white px-1 py-0.5 rounded border border-slate-200">s[두번째]</code></li>
-                </ul>
-            </div>
-
-            <div class="flex gap-4">
-                <button onclick="restartQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl px-8 py-3 rounded-2xl shadow-md transition-all">
-                    다시 도전하기 🔄
-                </button>
-                <button onclick="switchMode('learn')" class="bg-slate-500 hover:bg-slate-600 text-white font-bold text-xl px-8 py-3 rounded-2xl shadow-md transition-all">
-                    개념 다시보기 📚
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-md border-t border-slate-700">
-        <p>준후쌤과 하는 파이썬 행&열 놀이터 © 2026. 재미있게 코딩을 배워보아요!</p>
-    </footer>
-
-    <!-- JS Audio & Logic -->
-    <script>
-        // Icons Initialization
-        lucide.createIcons();
-
-        // Game State Variables
-        let currentMode = 'learn';
-        let score = 0;
-        let currentQuestionNum = 1;
-        const totalQuestions = 10;
+        <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-1.5" id="explain-title">
+          반가워! 코딩 친구 🧸
+        </h3>
         
-        let q1TargetRow = 0;
-        let q1TargetCol = 0;
-        let q2TargetRow = 0;
-        let q2TargetCol = 0;
+        <div class="prose prose-slate max-w-none text-slate-600 text-sm leading-relaxed" id="explain-content">
+          <p class="mb-3">교과서 124쪽에 실려 있는 코드를 읽기 너무 어려웠지? 걱정 마!</p>
+          <p class="mb-3">왼쪽 코드 상자에 있는 <strong>노란 점선 단어</strong>들이나, <strong>알록달록 줄 전체</strong>를 톡 터치해봐!</p>
+          <p class="mb-3">교과서 구석에 작게 적힌 <strong>준후쌤의 낙서 팁</strong>들을 바로 읽어볼 수 있어. 준비됐으면 어서 눌러봐!</p>
+          
+          <div class="mt-4 p-3.5 bg-[#fefefe] border-2 border-[#e9decb] rounded-2xl flex gap-2 items-center">
+            <span class="text-2xl">🍰</span>
+            <div class="text-xs text-slate-500 font-medium leading-relaxed">
+              <strong>준후쌤의 약속:</strong> 클래스 이름 <strong>Students</strong>의 맨 앞글자가 왜 대문자인지 바로 설명해줄게!
+            </div>
+          </div>
+        </div>
 
-        // Visualizer Grid Data (Match items in HTML)
-        const gridItems = [
-            ['🍎', '🍌', '🍇', '🍒', '🍑'], // Row 0
-            ['🦁', '🐯', '🐰', '🦊', '🐻'], // Row 1
-            ['🚗', '🚌', '🚒', '🚓', '🚲']  // Row 2
-        ];
+        <!-- 귀염뽀짝 퀴즈 및 미션 -->
+        <div class="mt-6 pt-5 border-t-2 border-dashed border-[#e9decb]">
+          <h4 class="text-xs font-extrabold text-amber-600 uppercase tracking-wider mb-2.5 flex items-center gap-1">
+            <i class="fa-solid fa-puzzle-piece"></i> 오늘의 도전! 미니 퀴즈
+          </h4>
+          <div class="bg-[#fcfaf5] p-4 rounded-2xl border-2 border-[#e9decb] text-xs">
+            <p class="font-bold text-slate-800 mb-3" id="quiz-question">Q. 'Students' 클래스에서 'informatics'는 무엇을 뜻하는 성질일까요?</p>
+            <div class="grid grid-cols-1 gap-2" id="quiz-options">
+              <button onclick="checkAnswer(1, this)" class="text-left p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-[#e9decb] text-slate-700 transition font-medium">① 학생의 취미</button>
+              <button onclick="checkAnswer(2, this)" class="text-left p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-[#e9decb] text-slate-700 transition font-medium">② '정보(교과)' 과목의 성적</button>
+              <button onclick="checkAnswer(3, this)" class="text-left p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-[#e9decb] text-slate-700 transition font-medium">③ 학생의 수학 시험지</button>
+            </div>
+            <p class="mt-3 text-[#10b981] hidden font-bold flex items-center gap-1" id="quiz-success">
+              <i class="fa-solid fa-thumbs-up"></i> 정답이야! 교과서 정보 성적 데이터(Informatics)를 뜻해!
+            </p>
+            <p class="mt-3 text-[#f43f5e] hidden font-bold flex items-center gap-1" id="quiz-fail">
+              <i class="fa-solid fa-face-sad-tear"></i> 조금 아쉬워! 다시 골라볼까?
+            </p>
+          </div>
+        </div>
+      </div>
 
-        // --- SOUND EFFECTS (Web Audio API for No-Dependency Audio) ---
-        function playSound(type) {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
+    </div>
 
-                if (type === 'success') {
-                    // Ding ding sound
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.4);
-                } else if (type === 'fail') {
-                    // Low buzz
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(220, ctx.currentTime); // A3
-                    osc.frequency.setValueAtTime(147, ctx.currentTime + 0.1); // D3
-                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.45);
-                } else if (type === 'complete') {
-                    // Trumpet fanfare
-                    const now = ctx.currentTime;
-                    const notes = [261.63, 329.63, 392.00, 523.25];
-                    notes.forEach((freq, idx) => {
-                        const subOsc = ctx.createOscillator();
-                        const subGain = ctx.createGain();
-                        subOsc.type = 'triangle';
-                        subOsc.frequency.value = freq;
-                        subOsc.connect(subGain);
-                        subGain.connect(ctx.destination);
-                        subGain.gain.setValueAtTime(0, now);
-                        subGain.gain.linearRampToValueAtTime(0.1, now + idx * 0.1);
-                        subGain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.4);
-                        subOsc.start(now + idx * 0.1);
-                        subOsc.stop(now + idx * 0.1 + 0.45);
-                    });
-                }
-            } catch (e) {
-                console.log('Audio Context error: ', e);
-            }
-        }
+  </main>
 
-        // --- MODE SWITCHER ---
-        function switchMode(mode) {
-            currentMode = mode;
-            
-            // Toggle view panels
-            document.getElementById('panel-learn').classList.add('hidden');
-            document.getElementById('panel-quiz1').classList.add('hidden');
-            document.getElementById('panel-quiz2').classList.add('hidden');
-            document.getElementById('panel-gameover').classList.add('hidden');
+  <!-- 푸터 -->
+  <footer class="bg-white border-t-4 border-[#e9decb] py-6 mt-12 text-center text-xs text-slate-400">
+    <div class="max-w-6xl mx-auto px-4">
+      <p class="font-semibold text-slate-500">🍓 교과서 3단원: 객체지향과 클래스 쉽게 마스터하기 🍓</p>
+      <p class="mt-1">준후쌤이 우리 반 학생들을 위해 정성스레 준비한 코딩 도우미</p>
+    </div>
+  </footer>
 
-            // Reset navigation button active states
-            const modes = ['learn', 'quiz1', 'quiz2'];
-            modes.forEach(m => {
-                const btn = document.getElementById(`btn-mode-${m}`);
-                if (btn) {
-                    btn.className = "px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200";
-                }
-            });
+  <script>
+    // 클릭 설명에 대한 교과서 날개 데이터
+    const explanationData = {
+      // 1. 핵심 키워드 토큰 정보
+      'class_keyword': {
+        title: "🔑 class 키워드가 뭐에요?",
+        category: "준후쌤의 기본 룰",
+        type: "예약어(Keyword)",
+        content: `
+          <p class="mb-2"><strong>'class'</strong>는 파이썬 세상에서 새로운 <strong>'붕어빵 틀'</strong>을 깎아 만들기 시작하겠다고 선언하는 마법의 키워드야.</p>
+          <p class="mb-2">이 선언을 하고 나면, 파이썬은 아래 들여쓰기 된 모든 속성과 행동을 하나의 설계도로 기억한단다.</p>
+          <div class="p-3 bg-[#fff9eb] text-amber-950 rounded-xl border border-amber-200 text-xs mt-3">
+            <strong>⚠️ 준후쌤의 주의 사항:</strong> class를 쓰고 옆에 이름을 적어준 뒤에는 항상 <strong>콜론(:)</strong>을 꼭 붙여서 "여기가 시작이야!" 라고 알려줘야 해!
+          </div>
+        `
+      },
+      'class_name': {
+        title: "📛 왜 'Students'는 대문자로 시작할까?",
+        category: "코딩 에티켓",
+        type: "클래스 이름 규칙",
+        content: `
+          <p class="mb-2">파이썬에선 일반 변수나 함수 이름은 소문자(예: <code>students</code>)로 쓰지만, <strong>클래스의 이름은 무조건 첫 글자를 대문자(예: <code>Students</code>)</strong>로 시작하는 규칙(PascalCase)이 있어!</p>
+          <p class="mb-2">이건 전 세계 프로그래머들이 "이건 단순한 변수가 아니라 내가 정성 들여 만든 틀이야!"라고 서로 신호를 보내는 약속이란다.</p>
+          <div class="p-3 bg-red-50 text-red-950 rounded-xl border border-red-200 text-xs mt-2">
+            <strong>❌ 나쁜 예:</strong> class students (소문자로 쓰면 변수랑 헷갈려요!)<br>
+            <strong>🟢 좋은 예:</strong> class Students (틀 이름은 대문자로 위풍당당하게!)
+          </div>
+        `
+      },
+      'def_keyword': {
+        title: "🛠️ 행동을 알려주는 def",
+        category: "움직임 설계",
+        type: "함수 정의 키워드",
+        content: `
+          <p class="mb-2"><strong>'def'</strong>는 'define(정의하다)'의 줄임말이야.</p>
+          <p class="mb-2">클래스 바깥에서 단독으로 쓰면 그냥 '함수'지만, 이렇게 클래스 안에서 <code>def</code>를 사용해 행동을 만들어 두면 이 클래스의 고유한 <strong>'메서드(Method)'</strong>라고 불러.</p>
+        `
+      },
+      'init_keyword': {
+        title: "🐣 탄생의 비법! 생성자 (__init__)",
+        category: "핵심 마법",
+        type: "특수 생성 메서드",
+        content: `
+          <p class="mb-2">이름 앞뒤에 언더바 2개씩 <code>__init__</code>이 붙은 이 메서드는 <strong>'인스턴스(객체) 생성자'</strong>라고 불러.</p>
+          <p class="mb-2">새로운 학생(<code>Students</code>) 객체가 탄생할 때, 파이썬이 눈 깜짝할 사이에 <strong>가장 먼저 실행해주는 첫 탄생 요람</strong>이야.</p>
+          <p class="mb-2">여기서 학생의 이름과 점수들을 처음으로 가방에 쏘옥 담아 주게 된단다.</p>
+        `
+      },
+      'self_keyword': {
+        title: "🙋 자기 자신을 콕 집는 self",
+        category: "초보자가 헷갈리는 1순위",
+        type: "특수 매개변수",
+        content: `
+          <p class="mb-2">클래스 내부에서 가장 많이 쓰이는 <strong>'self'는 가상으로 찍혀 나올 '자기 자신'</strong>을 가리켜.</p>
+          <p class="mb-2">예를 들어 <code>김OO</code> 학생이 태어날 때의 self는 <code>김OO</code>이고, <code>정OO</code> 학생이 태어날 때의 self는 <code>정OO</code>을 말하지.</p>
+          <div class="p-3 bg-amber-50 text-amber-900 rounded-xl border border-amber-200 text-xs mt-2">
+            <strong>💡 비법 노트:</strong> 클래스 안에 적는 모든 메서드의 첫 번째 배달 인자(매개변수)는 언제나 무조건 <strong>self</strong>여야 한단다!
+          </div>
+        `
+      },
+      'self_attrib_name': {
+        title: "🏷️ self.name = name 이 대체 뭘까?",
+        category: "내 가방 속 보물",
+        type: "객체 속성(Attribute)",
+        content: `
+          <p class="mb-2">오른쪽 <code>name</code>은 클래스 밖에서 보내준 따끈따끈한 데이터이고, 왼쪽 <code>self.name</code>은 내 개인 서랍장의 이름 칸을 의미해.</p>
+          <p class="mb-2">즉, <strong>"바깥에서 보내온 이름 값을 나의 소중한 'name' 보관함에 저장하겠다!"</strong>라는 뜻이야.</p>
+        `
+      },
+      'self_attrib_info': {
+        title: "📚 informatics는 무슨 뜻?",
+        category: "교과서 속 단어",
+        type: "정보 성적 데이터",
+        content: `
+          <p class="mb-2"><strong>Informatics</strong>는 컴퓨터 과학이나 <strong>'정보'</strong> 교과를 뜻하는 멋진 영어 단어야.</p>
+          <p class="mb-2">교과서 예제 코드에서는 정보 교과 점수를 담는 속성으로 쓰이고 있어!</p>
+        `
+      },
+      'call_sum': {
+        title: "🔗 내 안의 sum() 불러오기",
+        category: "스스로 일하기",
+        type: "자체 메서드 호출",
+        content: `
+          <p class="mb-2">평균(<code>avg</code>)을 구하기 위해 먼저 내 장부에 적힌 총점 구하기 기능(<code>self.sum()</code>)을 직접 작동시키는 코드야.</p>
+          <p class="mb-2">클래스 내부에 만들어진 기능을 꺼내 쓸 때는 언제나 내것이라는 표시로 앞에 <strong>self.</strong>를 꼭 붙여야 해.</p>
+        `
+      },
+      'string_format': {
+        title: "🎨 탭 문자(\\t)와 빈 상자({})",
+        category: "문자열 꾸미기",
+        type: "이스케이프 문자",
+        content: `
+          <p class="mb-2">이 문자열 양식에는 신기한 기호들이 들어있어:</p>
+          <ul class="list-disc pl-5 space-y-1.5 mt-2 text-xs">
+            <li><strong>중괄호 <code>{}</code>:</strong> 나중에 예쁘게 채워질 빈 껍데기 선물 상자야.</li>
+            <li><strong>탭 문자 <code>\\t</code>:</strong> 키보드의 Tab 키처럼 일정한 칸수만큼 간격을 띄어 정렬을 깔끔하게 만들어 주는 마법 문자야!</li>
+          </ul>
+        `
+      },
+      'format_func': {
+        title: "🎁 딱 알맞게 포장하는 .format()",
+        category: "문자열 꾸미기",
+        type: "포맷팅 함수",
+        content: `
+          <p class="mb-2"><code>format(self.name, self.avg())</code> 메서드는 앞서 정한 중괄호 <code>{}</code> 상자 속에 차례대로 값을 배달해 주는 집배원 아저씨 같은 역할을 해!</p>
+          <ul class="list-disc pl-5 space-y-1 mt-2 text-xs">
+            <li>첫 번째 <code>{}</code> ➡️ <code>self.name</code> (학생 이름)</li>
+            <li>두 번째 <code>{}</code> ➡️ <code>self.avg()</code> (평균 소숫점 점수)</li>
+          </ul>
+        `
+      },
+      'list_var': {
+        title: "🧺 소중한 학생들을 모아둔 바구니",
+        category: "데이터 보관",
+        type: "리스트(List)",
+        content: `
+          <p class="mb-2">클래스 틀에서 각각 찍어낸 세 명의 소중한 학생 객체들을 한곳에 묶어서 관리하는 장바구니 리스트(<code>students</code>)야.</p>
+          <p class="mb-2">대괄호 <code>[ ]</code> 안에 학생 객체들을 콤마로 하나하나 연결해서 소중히 보관하고 있지.</p>
+        `
+      },
+      'list_access': {
+        title: "☝️ 제일 첫 번째 학생을 꺼내자",
+        category: "인덱싱",
+        type: "리스트 원소 접근",
+        content: `
+          <p class="mb-2">파이썬 세상의 컴퓨터는 숫자를 셀 때 1이 아닌 <strong>0번</strong>부터 세기 시작해!</p>
+          <p class="mb-2">그래서 <code>students[0]</code>은 리스트 속 첫 번째 학생인 <strong>'김OO' 학생 객체</strong>를 꼭 집어 부르는 이름표야.</p>
+        `
+      },
+      'prop_access': {
+        title: "🔑 마침표(.)로 가방 안 들여다보기",
+        category: "속성 값 열기",
+        type: "객체 참조",
+        content: `
+          <p class="mb-2">마침표 <code>.</code> 기호는 학생의 개인 가방을 열어보는 <strong>열쇠</strong>야.</p>
+          <p class="mb-2"><code>students[0].informatics</code>는 "첫 번째 학생(김OO)의 가방 속에 들어있는 <strong>'정보(informatics)'</strong> 점수를 가동해서 보여줘!"라는 의미야. 그래서 <strong>88</strong>이 튀어나와!</p>
+        `
+      },
+      'sep_param': {
+        title: "📏 간격을 벌리는 sep='\\t'",
+        category: "출력 디자인",
+        type: "프린트 옵션",
+        content: `
+          <p class="mb-2"><code>print</code> 함수에 들어간 <strong>sep</strong>은 'separator(구분자)'의 약자야.</p>
+          <p class="mb-2">출력할 '이름'과 '평균' 사이에 빈칸 하나가 아니라, 일정하게 줄이 잘 맞도록 탭 문자(<code>\\t</code>)를 쏙 끼워 넣어 출력하라는 디테일한 명령 옵션이란다.</p>
+        `
+      },
+      'loop_var': {
+        title: "🔄 돌아가는 반복 대장 i",
+        category: "반복자",
+        type: "루프 변수",
+        content: `
+          <p class="mb-2"><code>for i in students:</code> 구문은 리스트에 있는 학생 수만큼 빙글빙글 돌면서 차례대로 학생들을 꺼내.</p>
+          <p class="mb-2">첫 바퀴 돌 때 <code>i</code>는 '김OO'이고, 두 번째 바퀴의 <code>i</code>는 '정OO'가 되지. 참 공평하지?</p>
+        `
+      },
+      'loop_var_call': {
+        title: "🚲 현재 차례의 학생 i",
+        category: "반복문 활용",
+        type: "객체 참조 변수",
+        content: `
+          <p class="mb-2">반복문(<code>for</code>) 구문 안에서 현재 자기 번호가 되어 열심히 일을 하고 있는 실제 <strong>학생 객체</strong>를 직접 가리켜!</p>
+          <p class="mb-2">첫 번째 바퀴에서는 '김OO' 학생 객체, 두 번째에서는 '정OO' 학생 객체로 한 바퀴 돌 때마다 변신하게 된단다.</p>
+        `
+      },
+      'string_method_call': {
+        title: "💌 i.string() 메서드 호출하기",
+        category: "실전 메서드 사용",
+        type: "메서드 호출(Method Call)",
+        content: `
+          <p class="mb-2">각 학생 객체(<code>i</code>)가 내장하고 있는 고유한 요약 기능인 <code>string()</code> 메서드를 힘차게 작동(호출)시키는 명령이야!</p>
+          <p class="mb-2">이 기능이 발동되면, 해당 학생의 이름과 평균 점수가 탭 간격으로 가공된 예쁜 문자열이 완성되어 바깥의 <code>print()</code>에 포장 배달된단다.</p>
+        `
+      },
 
-            // Set active design to the selected mode button
-            const activeBtn = document.getElementById(`btn-mode-${mode}`);
-            if (activeBtn) {
-                if (mode === 'learn') {
-                    activeBtn.className = "px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-emerald-100 text-emerald-800 border-2 border-emerald-300";
-                } else if (mode === 'quiz1') {
-                    activeBtn.className = "px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-indigo-100 text-indigo-800 border-2 border-indigo-300";
-                } else if (mode === 'quiz2') {
-                    activeBtn.className = "px-6 py-3 rounded-2xl font-bold text-xl shadow-md transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 bg-amber-100 text-amber-800 border-2 border-amber-300";
-                }
-            }
+      // 2. 라인 및 코드 블록 단위 설명들
+      'class_def_1': {
+        title: "🎨 1단계: 학생들을 찍어낼 설계도 그리기",
+        category: "교과서 속 흐름",
+        type: "클래스 정의 블록",
+        content: "여기서부터 11번째 줄까지는 학생의 '정보와 성적을 계산하는 틀'인 <code>Students</code> 클래스를 정의하는 본체 영역이야."
+      },
+      'init_method': {
+        title: "🐣 새로운 학생 객체를 처음 만드는 순간",
+        category: "교과서 속 흐름",
+        type: "초기화(생성자) 영역",
+        content: "새로운 학생이 태어날 때 주문서처럼 이름(<code>name</code>), 정보 성적(<code>informatics</code>), 수학 성적(<code>math</code>)을 전달받아 세팅해주는 초기화 규칙이야."
+      },
+      'attribute_assign': {
+        title: "🗂️ 전달받은 점수를 가방에 이름 붙여 담기",
+        category: "교과서 속 흐름",
+        type: "속성 세팅",
+        content: "바깥에서 보내온 정보(이름, 정보, 수학)를 내 고유의 개인 가방(속성 변수)에 각각 차곡차곡 할당하는 과정이야."
+      },
+      'sum_method': {
+        title: "➕ 정보 점수와 수학 점수 보태기",
+        category: "교과서 속 흐름",
+        type: "합계 구하기 메서드",
+        content: "해당 학생의 정보와 수학 점수를 더해 총합을 구해 전달(return)해주는 기특한 기능이지!"
+      },
+      'avg_method': {
+        title: "➗ 과목 수대로 나누어 평균 내기",
+        category: "교과서 속 흐름",
+        type: "평균 구하기 메서드",
+        content: "앞서 계산한 총합(<code>sum</code>)을 가지고 과목 수인 2로 나누어 꼬마 소숫점까지 포함된 평균을 찾아내는 스마트한 행동이야."
+      },
+      'string_method': {
+        title: "📝 이쁜 성적표 문자로 요약하기",
+        category: "교과서 속 흐름",
+        type: "정보 한 줄화 메서드",
+        content: "학생의 이름과 평균 점수를 탭 간격에 맞춰 정리된 한 문장으로 조립해 돌려주는 가방 정리 도우미야."
+      },
+      'format_method': {
+        title: "🎁 형식 포맷에 맞춰 이쁘게 배달하기",
+        category: "교과서 속 흐름",
+        type: "문자열 포맷 메서드",
+        content: "중괄호 구멍 <code>{}</code>에 실제 이름과 계산된 평균 점수를 가지런히 꽂아서 리턴해 주는 마지막 조립 과정이야."
+      },
+      'list_desc': {
+        title: "📝 2단계: 주석(Comment) 활용",
+        category: "교과서 속 흐름",
+        type: "설명문",
+        content: "샵(<code>#</code>)으로 시작하는 글은 사람이 공부하기 좋게 적어둔 메모(주석)야. 컴퓨터는 이 부분을 읽지 않고 사뿐히 지나치지!"
+      },
+      'list_brackets': {
+        title: "🧺 리스트로 학생 한꺼번에 가두기",
+        category: "교과서 속 흐름",
+        type: "리스트 묶음",
+        content: "세 명의 학생 인스턴스를 하나로 묶어 차례대로 대괄호(<code>[ ]</code>) 속에 집어넣어 보관하기 편하게 만드는 문장이야."
+      },
+      'object_instantiation_1': {
+        title: "🥇 김OO 학생 객체 만들기 완료!",
+        category: "교과서 속 흐름",
+        type: "인스턴스 생성",
+        content: "이름은 '김OO', 정보 성적 88점, 수학 성적 90점을 가진 명예로운 첫 번째 학생 인스턴스가 <code>Students</code> 설계도로 탄생했어!"
+      },
+      'object_instantiation_2': {
+        title: "🥈 두 번째 정OO 학생 탄생!",
+        category: "교과서 속 흐름",
+        type: "인스턴스 생성",
+        content: "설계도를 활용하면 이렇게 인자값(73, 65)만 바꾸어 또 다른 개별 학생 객체를 얼마든지 쉽게 만들어낼 수 있단다."
+      },
+      'object_instantiation_3': {
+        title: "🥉 세 번째 한OO 학생 등장!",
+        category: "교과서 속 흐름",
+        type: "인스턴스 생성",
+        content: "세 번째 학생의 정보 성적은 63점, 수학 성적은 77점이야. 클래스 하나로 학생 세 명의 독립 데이터가 완성되었어!"
+      },
+      'print_desc': {
+        title: "📟 3단계: 화면에 띄우기 주석",
+        category: "교과서 속 흐름",
+        type: "설명 주석",
+        content: "이제 메모리에 이쁘게 완성된 학생들의 객체 정보와 평균값을 우리 모니터 화면에 출력해보는 실습 구역이야."
+      },
+      'print_one_title': {
+        title: "📣 헤더 메시지 띄우기",
+        category: "교과서 속 흐름",
+        type: "글자 출력",
+        content: "터미널 실행창 첫 줄에 '김OO의 정보 성적' 이라는 텍스트를 인쇄하도록 시키는 단순한 명령어 구문이야."
+      },
+      'access_property': {
+        title: "🎯 김OO의 정보 점수 '88'만 골라 부르기",
+        category: "교과서 속 흐름",
+        type: "속성 직접 출력",
+        content: "첫 번째 학생(<code>students[0]</code>)의 속성 주머니 속에서 오직 정보 점수(<code>informatics</code>)만 마침표 연산자로 조준해 쏙 인쇄한단다."
+      },
+      'print_sep': {
+        title: "📑 표 머리글 이쁘게 뽑기",
+        category: "교과서 속 흐름",
+        type: "탭 정렬 출력",
+        content: "'이름'과 '평균' 글자를 한 줄로 적되, <code>sep='\\t'</code> 옵션으로 탭 키를 누른 듯 완벽한 가로 간격을 세워 출력해줘."
+      },
+      'for_loop': {
+        title: "🔄 세 명의 학생을 한 바퀴씩 돌며 부르자",
+        category: "교과서 속 흐름",
+        type: "반복 순회 루프",
+        content: "리스트 안에 들어있는 세 명의 학생들을 차례로 변수 <code>i</code>에 안긴 뒤, 모두 화면에 요약 정보를 인쇄할 때까지 반복 루프를 돌아."
+      },
+      'string_call': {
+        title: "💌 요약된 문자열을 가져와 한 번에 프린트!",
+        category: "교과서 속 흐름",
+        type: "출력 및 메서드 호출",
+        content: "현재 차례인 학생 <code>i</code>의 가방 속에 들어있는 <code>string()</code> 요약 비법을 작동시켜 한 명씩 가독성 좋은 줄로 완벽히 인쇄해 주는 마무리 단락이야!"
+      }
+    };
 
-            // Show appropriate panel & Initialize quiz if needed
-            if (mode === 'learn') {
-                document.getElementById('panel-learn').classList.remove('hidden');
-            } else if (mode === 'quiz1') {
-                document.getElementById('panel-quiz1').classList.remove('hidden');
-                initQuiz1();
-            } else if (mode === 'quiz2') {
-                document.getElementById('panel-quiz2').classList.remove('hidden');
-                initQuiz2();
-            }
-        }
+    let selectedElement = null;
 
-        // --- LEARN MODE INTERACTIVITY ---
-        const demoCells = document.querySelectorAll('.demo-cell');
-        demoCells.forEach(cell => {
-            cell.addEventListener('mouseenter', () => {
-                const r = cell.getAttribute('data-row');
-                const c = cell.getAttribute('data-col');
-                
-                // Update demo values
-                document.getElementById('demo-row-idx').textContent = r;
-                document.getElementById('demo-col-idx').textContent = c;
-                
-                // Update Code display
-                document.getElementById('demo-code-row').textContent = `[${r}]`;
-                document.getElementById('demo-code-col').textContent = `[${c}]`;
+    // 단어 클릭 시 작동
+    function selectToken(event, tokenKey) {
+      event.stopPropagation(); // 부모 줄(Line) 클릭 이벤트로 전파되는 것 방지
+      
+      // 기존 하이라이트 초기화
+      clearSelections();
 
-                // Soft background highlight for corresponding labels
-                cell.classList.add('ring-4', 'ring-emerald-400', 'ring-offset-2');
-            });
+      // 현재 토큰 선택 상태 시화
+      const target = event.currentTarget;
+      target.classList.add('selected-token');
 
-            cell.addEventListener('mouseleave', () => {
-                cell.classList.remove('ring-4', 'ring-emerald-400', 'ring-offset-2');
-            });
-        });
+      // 정보 가져와 채우기
+      fillExplainBox(tokenKey);
+    }
 
-        // --- QUIZ MANAGEMENT ---
-        function restartQuiz() {
-            score = 0;
-            currentQuestionNum = 1;
-            document.getElementById('score-value').textContent = score;
-            switchMode('quiz1');
-        }
+    // 줄 전체 클릭 시 작동
+    function selectLine(lineNumber, lineKey) {
+      clearSelections();
 
-        // --- QUIZ 1: SELECT GRID CELL LOGIC ---
-        function initQuiz1() {
-            if (currentQuestionNum === 1) {
-                score = 0;
-                document.getElementById('score-value').textContent = score;
-            }
+      // 줄 전체에 백그라운드 색 칠하기
+      const lines = document.querySelectorAll('.clickable-line');
+      
+      // index.html 내 전체 clickable-line 중, lineNumber번째 줄을 찾습니다.
+      const targetLine = lines[lineNumber - 1]; // 0부터 시작하는 인덱스 보정
+      if (targetLine) {
+        targetLine.classList.add('selected-line');
+      }
 
-            document.getElementById('q1-num').textContent = currentQuestionNum;
-            
-            // Randomize target
-            q1TargetRow = Math.floor(Math.random() * 3); // 0~2
-            q1TargetCol = Math.floor(Math.random() * 5); // 0~4
+      fillExplainBox(lineKey);
+    }
 
-            // Update question display
-            document.getElementById('q1-target-row').textContent = `[${q1TargetRow}]`;
-            document.getElementById('q1-target-col').textContent = `[${q1TargetCol}]`;
+    // 영역 필터링 하이라이트
+    function highlightSection(sectionId) {
+      const classDef = document.getElementById('sec-class_def');
+      const listCreate = document.getElementById('sec-list_create');
+      const printOne = document.getElementById('sec-print_one');
+      const printAll = document.getElementById('sec-print_all');
 
-            // Clear feedback styling
-            const feedback = document.getElementById('q1-feedback');
-            feedback.className = "hidden text-center text-2xl font-bold py-3 rounded-2xl transition-all";
-            
-            // Set up click handlers on grid buttons
-            const q1Btns = document.querySelectorAll('.q1-btn');
-            q1Btns.forEach(btn => {
-                // Clear state from previous answers
-                btn.className = "q1-btn h-16 bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl flex items-center justify-center font-bold text-3xl transition-all shadow-sm transform hover:scale-105";
-                btn.disabled = false;
-                
-                // Remove previous event listeners
-                btn.onclick = () => {
-                    const row = parseInt(btn.getAttribute('data-row'));
-                    const col = parseInt(btn.getAttribute('data-col'));
-                    handleQuiz1Answer(row, col, btn);
-                };
-            });
-        }
+      // 초기화
+      classDef.classList.remove('bg-blue-100/30', 'border-blue-400', 'border-l-4');
+      listCreate.classList.remove('bg-green-100/30', 'border-green-400', 'border-l-4');
+      printOne.classList.remove('bg-orange-100/30', 'border-orange-400', 'border-l-4');
+      printAll.classList.remove('bg-purple-100/30', 'border-purple-400', 'border-l-4');
 
-        function handleQuiz1Answer(clickedRow, clickedCol, clickedBtn) {
-            // Disable all buttons immediately
-            const q1Btns = document.querySelectorAll('.q1-btn');
-            q1Btns.forEach(btn => btn.disabled = true);
+      if (sectionId === 'class_def') {
+        classDef.classList.add('bg-[#e0f2fe]/20', 'border-blue-400', 'border-l-4');
+        fillExplainBox('class_def_1');
+      } else if (sectionId === 'list_create') {
+        listCreate.classList.add('bg-[#f0fdf4]/20', 'border-green-400', 'border-l-4');
+        fillExplainBox('list_desc');
+      } else if (sectionId === 'print_val') {
+        printOne.classList.add('bg-[#ffedd5]/20', 'border-orange-400', 'border-l-4');
+        printAll.classList.add('bg-[#faf5ff]/20', 'border-purple-400', 'border-l-4');
+        fillExplainBox('print_desc');
+      } else {
+        // 전체 복원
+        clearSelections();
+        document.getElementById('explain-title').innerText = "반가워! 코딩 친구 🧸";
+        document.getElementById('explain-category').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> 준후쌤의 다이어리`;
+        document.getElementById('explain-target-type').innerText = "도움말";
+        document.getElementById('explain-content').innerHTML = `
+          <p class="mb-3">교과서 124쪽에 실려 있는 코드를 읽기 너무 어려웠지? 걱정 마!</p>
+          <p class="mb-3">왼쪽 코드 상자에 있는 <strong>노란 점선 단어</strong>들이나, <strong>알록달록 줄 전체</strong>를 톡 터치해봐!</p>
+          <p class="mb-3">교과서 구석에 작게 적힌 <strong>준후쌤의 낙서 팁</strong>들을 바로 읽어볼 수 있어. 준비됐으면 어서 눌러봐!</p>
+        `;
+      }
+    }
 
-            const feedback = document.getElementById('q1-feedback');
-            feedback.classList.remove('hidden');
+    // 설명 박스 채우기 헬퍼
+    function fillExplainBox(key) {
+      const data = explanationData[key];
+      if (!data) return;
 
-            const isCorrect = (clickedRow === q1TargetRow && clickedCol === q1TargetCol);
+      const explainBox = document.getElementById('explain-box');
+      
+      // 자연스러운 부드러운 전환 효과를 위해 살짝 흔들리는 애니메이션 효과
+      explainBox.classList.add('translate-y-[-4px]', 'border-amber-400');
+      setTimeout(() => {
+        explainBox.classList.remove('translate-y-[-4px]', 'border-amber-400');
+      }, 200);
 
-            if (isCorrect) {
-                playSound('success');
-                score += 10;
-                document.getElementById('score-value').textContent = score;
-                
-                // Success styling
-                clickedBtn.className = "q1-btn h-16 bg-emerald-500 text-white border-4 border-emerald-300 rounded-2xl flex items-center justify-center font-bold text-3xl shadow-lg bounce-custom";
-                feedback.className = "text-center text-2xl font-bold py-3 rounded-2xl bg-emerald-100 text-emerald-800 border border-emerald-300 animate-bounce";
-                feedback.innerHTML = "🎉 와아! 정답이에요! 아주 똑똑한데요? <span class='text-md block font-normal text-emerald-600'>대괄호 순서는 역시 행(가로) ➔ 열(세로)!</span>";
-            } else {
-                playSound('fail');
-                
-                // Highlight incorrect button in red
-                clickedBtn.className = "q1-btn h-16 bg-red-100 border-4 border-red-500 rounded-2xl flex items-center justify-center font-bold text-3xl text-slate-800 shadow-inner";
-                
-                // Highlight the correct answer button in orange/indigo outline to guide the kid
-                const correctBtn = Array.from(q1Btns).find(btn => 
-                    parseInt(btn.getAttribute('data-row')) === q1TargetRow && 
-                    parseInt(btn.getAttribute('data-col')) === q1TargetCol
-                );
-                if (correctBtn) {
-                    correctBtn.className = "q1-btn h-16 bg-indigo-50 border-4 border-indigo-500 text-indigo-700 rounded-2xl flex items-center justify-center font-bold text-3xl shadow-lg animate-pulse";
-                }
+      document.getElementById('explain-title').innerText = data.title;
+      document.getElementById('explain-category').innerHTML = `<i class="fa-solid fa-cookie-bite"></i> ${data.category}`;
+      document.getElementById('explain-target-type').innerText = data.type;
+      document.getElementById('explain-content').innerHTML = data.content;
+    }
 
-                feedback.className = "text-center text-2xl font-bold py-3 rounded-2xl bg-red-50 text-red-800 border border-red-200";
-                feedback.innerHTML = `😢 아쉬워요! 정답은 s<span class="text-indigo-600">[${q1TargetRow}]</span><span class="text-amber-600">[${q1TargetCol}]</span> 이에요.<br><span class="text-lg font-normal text-red-600">힌트: <strong>${q1TargetRow + 1}번째 가로줄</strong>의 <strong>${q1TargetCol + 1}번째 아이템</strong>을 찾아봐요!</span>`;
-            }
+    // 선택 효과 일괄 해제
+    function clearSelections() {
+      // 단어 토큰 효과 지우기
+      document.querySelectorAll('.clickable-token').forEach(el => {
+        el.classList.remove('selected-token');
+      });
+      // 줄 하이라이트 지우기
+      document.querySelectorAll('.clickable-line').forEach(el => {
+        el.classList.remove('selected-line');
+      });
+    }
 
-            // Move to next question after 2.5 seconds
-            setTimeout(() => {
-                currentQuestionNum++;
-                if (currentQuestionNum <= 5) {
-                    initQuiz1();
-                } else {
-                    // transition to phase 2 (Quiz 2) at Q6-10
-                    switchMode('quiz2');
-                }
-            }, 3000);
-        }
+    // 미니 퀴즈 채점 시스템
+    function checkAnswer(answerNumber, element) {
+      const successMsg = document.getElementById('quiz-success');
+      const failMsg = document.getElementById('quiz-fail');
+      
+      // 이전 결과 초기화
+      successMsg.classList.add('hidden');
+      failMsg.classList.add('hidden');
 
-
-        // --- QUIZ 2: INPUT ADRESSES LOGIC ---
-        function initQuiz2() {
-            // Keep question number continuity (6 to 10)
-            document.getElementById('q2-num').textContent = currentQuestionNum;
-
-            // Reset selection dropdowns
-            document.getElementById('q2-input-row').value = "";
-            document.getElementById('q2-input-col').value = "";
-
-            // Choose random target
-            q2TargetRow = Math.floor(Math.random() * 3);
-            q2TargetCol = Math.floor(Math.random() * 5);
-
-            // Get target item (emoji)
-            const targetEmoji = gridItems[q2TargetRow][q2TargetCol];
-            document.getElementById('q2-target-item').textContent = targetEmoji;
-
-            // Clear feedback block
-            const feedback = document.getElementById('q2-feedback');
-            feedback.className = "hidden text-center text-2xl font-bold py-3 rounded-2xl transition-all";
-
-            // Update visual grid in Quiz 2 (highlighting the selected cell with pulse)
-            const q2Cells = document.querySelectorAll('.q2-cell');
-            q2Cells.forEach(cell => {
-                const r = parseInt(cell.getAttribute('data-row'));
-                const c = parseInt(cell.getAttribute('data-col'));
-
-                if (r === q2TargetRow && c === q2TargetCol) {
-                    // Highlight the item to guess
-                    cell.className = "q2-cell h-16 bg-amber-100 border-4 border-amber-400 text-amber-900 rounded-2xl flex items-center justify-center font-bold text-4xl shadow-md bounce-custom ring-4 ring-amber-200";
-                } else {
-                    // Dull other options slightly
-                    cell.className = "q2-cell h-16 bg-white border border-slate-200 opacity-60 rounded-2xl flex items-center justify-center font-bold text-3xl";
-                }
-            });
-        }
-
-        function checkQuiz2Answer() {
-            const inputRow = document.getElementById('q2-input-row').value;
-            const inputCol = document.getElementById('q2-input-col').value;
-
-            // Check if selected
-            if (inputRow === "" || inputCol === "") {
-                const feedback = document.getElementById('q2-feedback');
-                feedback.className = "text-center text-xl font-bold py-2 rounded-2xl bg-amber-100 text-amber-800 border border-amber-200";
-                feedback.textContent = "⚠️ 행과 열을 모두 선택해주세요!";
-                feedback.classList.remove('hidden');
-                return;
-            }
-
-            const feedback = document.getElementById('q2-feedback');
-            feedback.classList.remove('hidden');
-
-            const isCorrect = (parseInt(inputRow) === q2TargetRow && parseInt(inputCol) === q2TargetCol);
-
-            if (isCorrect) {
-                playSound('success');
-                score += 10;
-                document.getElementById('score-value').textContent = score;
-
-                feedback.className = "text-center text-2xl font-bold py-3 rounded-2xl bg-emerald-100 text-emerald-800 border border-emerald-300 animate-bounce";
-                feedback.innerHTML = `🎉 완벽해요! 주소를 정확히 맞췄어요! <br><span class="text-lg font-normal text-emerald-600">s[${q2TargetRow}][${q2TargetCol}] 은(는) 진짜로 '${gridItems[q2TargetRow][q2TargetCol]}' 이었답니다!</span>`;
-            } else {
-                playSound('fail');
-
-                feedback.className = "text-center text-2xl font-bold py-3 rounded-2xl bg-red-50 text-red-800 border border-red-200";
-                feedback.innerHTML = `😢 아이쿠! 틀렸어요.<br><span class="text-lg font-normal text-red-600">선택하신 주소는 s[${inputRow}][${inputCol}] 이지만, 정답은 <strong class="text-indigo-600">s[${q2TargetRow}][${q2TargetCol}]</strong> 입니다.</span>`;
-            }
-
-            // Go to next or finish
-            setTimeout(() => {
-                currentQuestionNum++;
-                if (currentQuestionNum <= totalQuestions) {
-                    initQuiz2();
-                } else {
-                    // Show final report
-                    showGameOver();
-                }
-            }, 3000);
-        }
-
-        function showGameOver() {
-            playSound('complete');
-            document.getElementById('panel-quiz1').classList.add('hidden');
-            document.getElementById('panel-quiz2').classList.add('hidden');
-            
-            const gameOverPanel = document.getElementById('panel-gameover');
-            gameOverPanel.classList.remove('hidden');
-
-            // Calculate score out of 100 (10 questions * 10 pts)
-            document.getElementById('final-score').textContent = score;
-        }
-    </script>
+      if (answerNumber === 2) {
+        successMsg.classList.remove('hidden');
+        element.classList.add('bg-green-100', 'border-green-400');
+      } else {
+        failMsg.classList.remove('hidden');
+        element.classList.add('bg-red-50', 'border-red-300');
+        setTimeout(() => {
+          element.classList.remove('bg-red-50', 'border-red-300');
+        }, 1200);
+      }
+    }
+  </script>
 </body>
 </html>
